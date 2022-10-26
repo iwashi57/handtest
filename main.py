@@ -30,6 +30,7 @@ import pyautogui as pyautogui
 import time
 import pyqrcode
 from tenacity import retry
+from utils import CvFpsCalc
 
 v= [[] for i in range(13)]
 vv = [[] for i in range(4)] #認証配列動き
