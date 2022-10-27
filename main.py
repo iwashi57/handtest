@@ -1,3 +1,6 @@
+import cv2
+from PyQt5 import QtCore, QtGui, QtWidgets
+from matplotlib import pyplot as plt
 
 import sys
 
@@ -26,18 +29,15 @@ import random
 import pyautogui as pyautogui
 import time
 import pyqrcode
-from utils import CvFpsCalc
 
 v= [[] for i in range(13)]
 vv = [[] for i in range(4)] #認証配列動き
 #i = 0
 a = [1,10,10,10,1] #桁の前後認証
-#g1=[125,60,40,80,170,285,370,410,390,330]
-#g2=[300,235,130,30,-25,-20,35,130,235,300]
 x = [10 for i in range (10)] # ダイヤル配置
 xx = [10 for i in range (20)] # x逆順
 x_2 = [10 for i in range (20)] # x2倍
-psw = [3, 5, 8, 9] #パスワード
+psw = [3,9,1,7]#パスワード
 turn = [1,2,1,2,1] # 1時計回り 2反時計回り
 u = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 s = [2, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10] #周回状況
@@ -303,26 +303,7 @@ class Movie(QtWidgets.QDialog):
 
 
             # 画面反映 #############################################################
-            # img = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-            # QT側でチャネル順BGRを指定
-
-            qimg = QtGui.QImage(debug_image.tobytes(), debug_image.shape[1], debug_image.shape[0],
-                                debug_image.strides[0],
-                                QtGui.QImage.Format.Format_BGR888)
-            #qimg = qimg.scaled(self.width, self.height, 3000, 2000)
-            '''qpix = QPixmap.fromImage(qimg)
-            self.image_label.setPixmap(qpix)'''
             cv.imshow('MediaPipe Hand Demo', debug_image)
-            '''
-            img = cv.cvtColor(debug_image, cv.COLOR_BGR2RGB)
-            self.image = QtGui.QImage(img.data, width, height, QtGui.QImage.Format_RGB888)
-            self.item = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.image))
-            #self.image_label.setPixmap(self,self.item)
-            self.scene.clear()
-            self.scene.addItem(self.item)
-            self.ui.graphicsView.setScene(self.scene)
-            cv.imshow('MediaPipe Hand Demo', debug_image)
-            '''
         #cap.release()
         #cv.destroyAllWindows()
 
@@ -448,14 +429,14 @@ class Movie(QtWidgets.QDialog):
         # sdvは座標,x[sdv]は数値,jは何周目か
         k = 0
         l = 0
-        for j in range(11):
-            if j == 4:
+        for j in range(5):
+            if j == 1:
                 k = 1
-            if j == 7:
+            if j == 2:
                 k = 2
-            if j == 9:
+            if j == 3:
                 k = 3
-            if j == 10:
+            if j == 4:
                 k = 4
             if s[j] == 2:
                 if (k != 4 and x[sdv] == psw[k])or(k == 4 and x[sdv] == psw[3]):  # 仮
@@ -514,295 +495,321 @@ class Movie(QtWidgets.QDialog):
 
     def clickCallback_0(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("0")
-        '''print("v", v)
-        print("l", l)
-        print("st", st)
-        print("k", k)
-        print("j",j)'''
-
+        print("v[j]",v[j])
+        print("x[st]",x[st])
+        print("st",st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j==0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
 
     def clickCallback_1(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("1")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
     def clickCallback_2(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("2")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j==0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
     def clickCallback_3(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("3")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
     def clickCallback_4(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("4")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
     def clickCallback_5(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("5")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
     def clickCallback_6(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("6")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
     def clickCallback_7(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("7")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
 
     def clickCallback_8(self, j, l, st, k):  # ボタンが押されたらやること
         self.label.setText("8")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0 and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
     def clickCallback_9(self, j, l, st, k):  # ボタン0が押されたらやること
         self.label.setText("9")
-
+        print("v[j]", v[j])
+        print("x[st]", x[st])
+        print("st", st)
         if k > 0 and vv[k - 1] == v[j]:
             print(k + 1, "桁目認証開始")
             a[k] = 1
-
         if (st != 0 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st - 1] and turn[k] == 1 and a[k] == 1) or (
-                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1):
+                st == 0 and v[j][l - 1] == x[0] and v[j][l - 2] == x[9] and turn[k] == 1 and a[k] == 1) or (
+                j == 0  and st == 7 and v[j][l-1] == x[st] and turn[k] == 1 and a[k] == 1):
             print("認証 時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 0 and j == 3:
+            if k == 0 and j == 0:
                 print("１桁目認証")
-            if k == 2 and j == 8:
+            if k == 2 and j == 2:
                 print("３桁目認証")
-            if k == 4 and j == 10:
+            if k == 4 and j == 4:
                 self.label.setText("Success")
+                print("Success")
         if (st != 9 and v[j][l - 1] == x[st] and v[j][l - 2] == x[st + 1] and turn[k] == 2 and a[k] == 1) or (
                 st == 9 and v[j][l - 1] == x[9] and v[j][l - 2] == x[0] and turn[k] == 2 and a[k] == 1):
             print("認証 反時計回り")
             s[j] = 0
             s[j + 1] = 2
-            if k == 1 and j == 6:
+            if k == 1 and j == 1:
                 print("２桁目認証")
-            if k == 3 and j == 9:
+            if k == 3 and j == 3:
                 print("４桁目認証")
 
 
