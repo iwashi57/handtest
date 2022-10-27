@@ -1,6 +1,3 @@
-import cv2
-from PyQt5 import QtCore, QtGui, QtWidgets
-from matplotlib import pyplot as plt
 
 import sys
 
@@ -29,7 +26,6 @@ import random
 import pyautogui as pyautogui
 import time
 import pyqrcode
-from tenacity import retry
 from utils import CvFpsCalc
 
 v= [[] for i in range(13)]
